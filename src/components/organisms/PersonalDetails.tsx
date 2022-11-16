@@ -1,6 +1,5 @@
-import { Box, Grid, Typography } from "@mui/material";
+import { Box, Grid, Typography, Button } from "@mui/material";
 import React from "react";
-import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import { useForm } from "react-hook-form";
 import { FormTextField } from "@components/atoms/FormTextField";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -10,8 +9,16 @@ import { set_step_completed } from "@state/onboarding";
 import { useAtom } from "jotai";
 import { FormMultipleSelect } from "@components/atoms/FormMultipleSelect";
 import { states } from "src/constants/onboarding";
+import api from "@/services/api";
+import { useToast } from "use-toast-mui";
+import { AxiosError } from "axios";
 
-export const PersonalDetails = () => {
+export const PersonalDetails = ({
+  showFooter = true,
+}: {
+  showFooter?: Boolean;
+}) => {
+  const toast = useToast();
   const formInstance = useForm<{
     fullName: string;
     address: string;
@@ -27,9 +34,20 @@ export const PersonalDetails = () => {
     formState: { errors },
   } = formInstance;
   const [activeStep, setStepComplete] = useAtom(set_step_completed);
-  const onSubmit = (formData: any) => {
+  const onSubmit = async (formData: any) => {
     console.log("Form Data ===> ", formData);
-    setStepComplete(activeStep?.id);
+
+    try {
+      await api.put("v1/profile", {
+        user: {
+          full_name: formData.fullName,
+          address: `${formData.address} ${formData.city.label} ${formData.state.label} ${formData.zip}`,
+        },
+      });
+      setStepComplete(activeStep?.id);
+    } catch (err: any) {
+      toast.error(err?.message || err);
+    }
   };
 
   return (
@@ -41,7 +59,7 @@ export const PersonalDetails = () => {
           alignItems: "center",
         }}
       >
-        <AccessTimeIcon fontSize="small" /> 1-2 mins
+        {/* <AccessTimeIcon fontSize="small" /> 1-2 mins */}
       </Typography>
 
       <form onSubmit={handleSubmit(onSubmit)}>
@@ -118,9 +136,21 @@ export const PersonalDetails = () => {
               </Grid>
             </Grid>
           </Grid>
+
+          {/* User this button when save the record from Diolo */}
+          {!showFooter && (
+            <Grid item xs={12} md={6}>
+              <Button variant="outlined">Save</Button>
+            </Grid>
+          )}
         </Grid>
-        <FormFooter />
+
+        {showFooter ? <FormFooter /> : ""}
       </form>
     </Box>
   );
+};
+
+PersonalDetails.defaultProps = {
+  showFooter: true,
 };

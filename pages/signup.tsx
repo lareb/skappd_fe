@@ -1,16 +1,6 @@
 import React from "react";
-import { SingUp } from "@components/organisms/SingUp";
-import { ResponsiveAppBar } from "@components/molecules/ResponsiveAppBar";
-import { Theme, useMediaQuery } from "@mui/material";
+import { SigningLayout } from "@components/organisms/SigningLayout";
 
-const Login = () => {
-  const isDesktop = useMediaQuery((theme: Theme) => theme.breakpoints.up("sm"));
-  return (
-    <main>
-      <ResponsiveAppBar />
-      <SingUp isDesktop={isDesktop} />
-    </main>
-  );
-};
+const Login = () => <SigningLayout page='signup' />;
 
 export default Login;

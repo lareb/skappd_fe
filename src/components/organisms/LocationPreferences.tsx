@@ -1,6 +1,6 @@
-import { Box, Grid, Typography, InputAdornment } from "@mui/material";
+import { Box, Grid, Typography, InputAdornment, Button } from "@mui/material";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
-import { useForm } from "react-hook-form";
+import { FieldError, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { StepAccordion } from "@components/molecules/StepAccordion";
 import { FormCustomRadioGroup } from "@components/atoms/FormCustomRadioGroup";
@@ -17,17 +17,15 @@ import { languages, states } from "src/constants/onboarding";
 import { FormTextField } from "@components/atoms/FormTextField";
 import { StyledLabel } from "@components/atoms/common";
 
-export const LocationPreferences = () => {
+export const LocationPreferences = ({
+  showFooter = true,
+}: {
+  showFooter?: Boolean;
+}) => {
   const [expanded, setExpanded] = useState<string>("");
   const [activeStep, setStepComplete] = useAtom(set_step_completed);
 
-  const formInstance = useForm<{
-    relocating: string;
-    statePrefer: Array<TFormMultipleSelectOptions>;
-    stateLicenses: Array<TFormMultipleSelectOptions>;
-    languages: Array<TFormMultipleSelectOptions>;
-    nearMiles: string;
-  }>({
+  const formInstance = useForm({
     resolver: yupResolver(LocationPreferenceSchema),
   });
 
@@ -64,7 +62,7 @@ export const LocationPreferences = () => {
             alignItems: "center",
           }}
         >
-          <AccessTimeIcon fontSize="small" /> 1-2 mins
+          {/* <AccessTimeIcon fontSize="small" /> 1-2 mins */}
         </Typography>
       </Box>
       <form onSubmit={handleSubmit(onSubmit)}>
@@ -150,7 +148,7 @@ export const LocationPreferences = () => {
                     label: "Distance",
                     name: `nearMiles`,
                     control: control,
-                    error: errors?.nearMiles,
+                    error: errors?.nearMiles as FieldError,
                     options: {
                       autoCapitalize: true,
                       endAdornment: (
@@ -223,8 +221,16 @@ export const LocationPreferences = () => {
               </Grid>
             </StepAccordion>
           </Grid>
+
+          {/* User this button when save the record from Diolo */}
+          {!showFooter && (
+            <Grid container item xs={12} sx={{ mt: 2, ml: 2 }}>
+              <Button variant="outlined">Save</Button>
+            </Grid>
+          )}
         </Grid>
-        <FormFooter />
+
+        {showFooter ? <FormFooter /> : ""}
       </form>
     </Box>
   );
